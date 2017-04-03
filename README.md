@@ -1,5 +1,5 @@
 ## 
-![gocode-logo](https://cloud.githubusercontent.com/assets/100216/12792545/96727a8e-ca69-11e5-9b9a-cddfa80d1c4b.png)
+![alt tag](https://github.com/GoCodeColorado/AwkwardElk/blob/master/schematic.png)
 --
 
 
