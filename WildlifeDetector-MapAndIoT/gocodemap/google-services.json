@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "1055175495629",
+    "firebase_url": "https://go-code-co-wildl-1490055276288.firebaseio.com",
+    "project_id": "go-code-co-wildl-1490055276288",
+    "storage_bucket": "go-code-co-wildl-1490055276288.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1055175495629:android:06f4cdea7e8659c4",
+        "android_client_info": {
+          "package_name": "com.paultrebilcoxruiz.gocodeiot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1055175495629-gi7643bc984qcelmc00rrbafdh1v4lcl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfXsshb7SB0LnChAwXneSFSOnzLrt2GCc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1055175495629:android:1ff607cb7739dfea",
+        "android_client_info": {
+          "package_name": "com.paultrebilcoxruiz.wildlifemap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1055175495629-gi7643bc984qcelmc00rrbafdh1v4lcl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfXsshb7SB0LnChAwXneSFSOnzLrt2GCc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
