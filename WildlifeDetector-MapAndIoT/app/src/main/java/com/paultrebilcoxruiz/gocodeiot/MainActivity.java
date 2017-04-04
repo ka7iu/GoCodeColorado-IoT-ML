@@ -50,8 +50,6 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     public static final int mGpsBuadRate = 9600;
     public static final float mGpsAccuracy = 2.5f;
 
-    private Location mCurrentLocation;
-
     private HCSR501 mMotionDetector;
 
     private Bmx280 mTemperaturePressureSensor;
@@ -270,7 +268,6 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
     @Override
     public void onLocationChanged(Location location) {
-        mCurrentLocation = location;
     }
 
     @Override
@@ -299,7 +296,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
         final List<Classifier.Recognition> results = mTensorFlowClassifier.recognizeImage(bitmap);
 
-        Log.d("Detector", "Got the following results from Tensorflow: " + results);
+        Log.e("Test", "Got the following results from Tensorflow: " + results);
 
         String detectedAnimal = getAnimalType(results);
         if( TextUtils.isEmpty(detectedAnimal) ) {
@@ -337,9 +334,10 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         Detection detection = new Detection();
         detection.setAnimalType(detectedAnimal);
         detection.setImageUrl(downloadUri.toString());
-        if( mCurrentLocation != null ) {
-            detection.setLatitude(mCurrentLocation.getLatitude());
-            detection.setLongitude(mCurrentLocation.getLongitude());
+        if( mLocationManager != null && mLocationManager.getAllProviders() != null && !mLocationManager.getAllProviders().isEmpty() ) {
+            Location location = mLocationManager.getLastKnownLocation(mLocationManager.getAllProviders().get(0));
+            detection.setLatitude(location.getLatitude());
+            detection.setLongitude(location.getLongitude());
         }
         detection.setTimeMillis(System.currentTimeMillis());
 

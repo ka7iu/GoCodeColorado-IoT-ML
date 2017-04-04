@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="Tensorflow-Android-Inference-alpha-debug-">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/988996753ac3e146cee0b322afc996424dabe294/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/988996753ac3e146cee0b322afc996424dabe294/output/res" />
+      <root url="file://$USER_HOME$/.android/build-cache/4414a2f52cbe9cf92f238384f2764989e52b49d7/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/4414a2f52cbe9cf92f238384f2764989e52b49d7/output/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
