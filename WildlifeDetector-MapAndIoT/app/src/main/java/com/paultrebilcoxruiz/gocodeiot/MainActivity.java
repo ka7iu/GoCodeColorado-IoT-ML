@@ -3,6 +3,7 @@ package com.paultrebilcoxruiz.gocodeiot;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -111,8 +112,6 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private Runnable mInitializeOnBackground = new Runnable() {
         @Override
         public void run() {
-            Log.e("Test", "initialize camera on background");
-
             mImagePreprocessor = new ImagePreprocessor(CameraHandler.IMAGE_WIDTH,
                     CameraHandler.IMAGE_HEIGHT, TensorFlowImageClassifier.INPUT_SIZE);
 
@@ -174,13 +173,11 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     }
 
     private void initMCP3008() throws IOException {
-        Log.e("Test", "initmcp3008");
         mMCP3008 = new MCP3008(BoardDefaults.getAdcCsPin(), BoardDefaults.getAdcClockPin(), BoardDefaults.getAdcMosiPin(), BoardDefaults.getAdcMisoPin());
         mMCP3008.register();
     }
 
     private void initGps() throws IOException {
-        Log.e("Test", "initgps");
         mGpsDriver = new NmeaGpsDriver(this, BoardDefaults.getGpsUartBus(),
                 mGpsBuadRate, mGpsAccuracy);
         mGpsDriver.register();
@@ -346,9 +343,16 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         detection.setAnimalType(detectedAnimal);
         detection.setImageUrl(downloadUri.toString());
         if( mLocationManager != null && mLocationManager.getAllProviders() != null && !mLocationManager.getAllProviders().isEmpty() ) {
-            Location location = mLocationManager.getLastKnownLocation(mLocationManager.getAllProviders().get(0));
-            detection.setLatitude(location.getLatitude());
-            detection.setLongitude(location.getLongitude());
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.NO_REQUIREMENT);
+            Location location = mLocationManager.getLastKnownLocation(mLocationManager.getBestProvider(criteria, true));
+            if( location != null ) {
+                detection.setLatitude(location.getLatitude());
+                detection.setLongitude(location.getLongitude());
+            } else {
+                detection.setLatitude(0);
+                detection.setLongitude(0);
+            }
         }
         detection.setTimeMillis(System.currentTimeMillis());
 
@@ -362,6 +366,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     }
 
     public String getAnimalType(List<Classifier.Recognition> results) {
+        /*
         for( Classifier.Recognition tmp : results ) {
             if( tmp.getConfidence() >= acceptableRecognitionConfidence ) {
                 return tmp.getTitle();
@@ -369,6 +374,9 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         }
 
         return null;
+        */
+
+        return "tmp";
     }
 
     @Override
