@@ -31,6 +31,7 @@ import com.paultrebilcoxruiz.gocodeiot.hardware.adc.MCP3008;
 import com.paultrebilcoxruiz.gocodeiot.hardware.camera.CameraHandler;
 import com.paultrebilcoxruiz.gocodeiot.hardware.camera.ImagePreprocessor;
 import com.paultrebilcoxruiz.gocodeiot.hardware.sensors.Bmx280;
+import com.paultrebilcoxruiz.gocodeiot.hardware.sensors.flamedetector.FlameDetector;
 import com.paultrebilcoxruiz.gocodeiot.hardware.sensors.motiondetector.HCSR501;
 import com.paultrebilcoxruiz.gocodeiot.machinelearning.Classifier;
 import com.paultrebilcoxruiz.gocodeiot.machinelearning.TensorFlowImageClassifier;
@@ -40,7 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEventListener, LocationListener, ImageReader.OnImageAvailableListener {
+public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEventListener, LocationListener, ImageReader.OnImageAvailableListener, FlameDetector.OnFlameDetectedListener {
 
     private final String FIREBASE_DATABASE_URL = "https://go-code-co-wildl-1490055276288.firebaseio.com/";
     private final String FIREBASE_STORAGE_URL = "gs://go-code-co-wildl-1490055276288.appspot.com";
@@ -53,6 +54,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private final long DELAY_TIME_MILLIS = 5 * 1000 * 60; //5 minutes
 
     private HCSR501 mMotionDetector;
+    private FlameDetector mFlameDetector;
 
     private Bmx280 mTemperaturePressureSensor;
     private MCP3008 mMCP3008;
@@ -127,7 +129,6 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e("Test", "oncreate");
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         PeripheralManagerService service = new PeripheralManagerService();
         try {
@@ -146,6 +147,13 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
             mMotionDetector.setOnMotionDetectedEventListener(this);
         } catch( IOException e ) {
 
+        }
+
+        try {
+            mFlameDetector = new FlameDetector(BoardDefaults.getFlameDetectorPin());
+            mFlameDetector.setOnFlameDetectedListener(this);
+        } catch( IOException e ) {
+            
         }
 
         initCamera();
@@ -361,5 +369,12 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         }
 
         return null;
+    }
+
+    @Override
+    public void onFlameDetected(FlameDetector.State flame) {
+        if( flame == FlameDetector.State.FLAME ) {
+            Log.e("Test", "on flame detected");
+        }
     }
 }
