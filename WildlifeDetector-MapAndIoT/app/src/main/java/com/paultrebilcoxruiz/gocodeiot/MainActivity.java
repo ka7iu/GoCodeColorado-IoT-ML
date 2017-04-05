@@ -47,7 +47,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private final String FIREBASE_DATABASE_URL = "https://go-code-co-wildl-1490055276288.firebaseio.com/";
     private final String FIREBASE_STORAGE_URL = "gs://go-code-co-wildl-1490055276288.appspot.com";
 
-    private final float acceptableRecognitionConfidence = 80.0f;
+    private final float acceptableRecognitionConfidence = 0.80f;
 
     public static final int mGpsBuadRate = 9600;
     public static final float mGpsAccuracy = 2.5f;
@@ -305,8 +305,8 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
         Log.e("Test", "Got the following results from Tensorflow: " + results);
 
-        String detectedAnimal = getAnimalType(results);
-        if( TextUtils.isEmpty(detectedAnimal) ) {
+        Detection detectedAnimal = getDetectedAnimal(results);
+        if( detectedAnimal == null ) {
             Log.e("Test", "no detected animal");
             return;
         }
@@ -316,7 +316,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         uploadAnimal( bitmap, detectedAnimal );
     }
 
-    private void uploadAnimal(Bitmap bitmap, final String detectedAnimal) {
+    private void uploadAnimal(Bitmap bitmap, final Detection detectedAnimal) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         byte[] data = outputStream.toByteArray();
@@ -338,9 +338,8 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         });
     }
 
-    private void handleNotificationForImage(Uri downloadUri, String detectedAnimal) {
-        Detection detection = new Detection();
-        detection.setAnimalType(detectedAnimal);
+    private void handleNotificationForImage(Uri downloadUri, Detection detection) {
+
         detection.setImageUrl(downloadUri.toString());
         if( mLocationManager != null && mLocationManager.getAllProviders() != null && !mLocationManager.getAllProviders().isEmpty() ) {
             Criteria criteria = new Criteria();
@@ -362,21 +361,20 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     }
 
     private boolean shouldTakeImage() {
-        return System.currentTimeMillis() - lastDetectionTime > DELAY_TIME_MILLIS;
+        return (System.currentTimeMillis() - lastDetectionTime) > DELAY_TIME_MILLIS;
     }
 
-    public String getAnimalType(List<Classifier.Recognition> results) {
-        /*
+    public Detection getDetectedAnimal(List<Classifier.Recognition> results) {
         for( Classifier.Recognition tmp : results ) {
             if( tmp.getConfidence() >= acceptableRecognitionConfidence ) {
-                return tmp.getTitle();
+                Detection detection = new Detection();
+                detection.setAnimalType(tmp.getTitle());
+                detection.setConfidence(tmp.getConfidence());
+                return detection;
             }
         }
 
         return null;
-        */
-
-        return "tmp";
     }
 
     @Override
