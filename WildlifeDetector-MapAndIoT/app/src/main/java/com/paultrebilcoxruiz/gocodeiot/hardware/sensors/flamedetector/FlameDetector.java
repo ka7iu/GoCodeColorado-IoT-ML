@@ -31,7 +31,7 @@ public class FlameDetector implements AutoCloseable {
                 if( gpio.getValue() != mLastState ) {
                     mLastState = gpio.getValue();
                     if( mOnFlameDetectedListener != null ) {
-                        mOnFlameDetectedListener.onFlameDetected(mLastState ? State.FLAME, State.NO_FLAME);
+                        mOnFlameDetectedListener.onFlameDetected(mLastState ? State.FLAME : State.NO_FLAME);
                     }
                 }
 
@@ -51,7 +51,7 @@ public class FlameDetector implements AutoCloseable {
 
         try {
             connect(gpio);
-        } catch( IOException | RuntimeException e ) {
+        } catch( IOException e ) {
             close();
             throw e;
         }
@@ -73,7 +73,7 @@ public class FlameDetector implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         mOnFlameDetectedListener = null;
 
         if( mFlameDetectorGpio != null ) {
