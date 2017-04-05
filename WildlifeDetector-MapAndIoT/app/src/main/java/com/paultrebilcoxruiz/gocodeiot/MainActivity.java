@@ -45,7 +45,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private final String FIREBASE_DATABASE_URL = "https://go-code-co-wildl-1490055276288.firebaseio.com/";
     private final String FIREBASE_STORAGE_URL = "gs://go-code-co-wildl-1490055276288.appspot.com";
 
-    private final float acceptableRecognitionConfidence = 70.0f;
+    private final float acceptableRecognitionConfidence = 80.0f;
 
     public static final int mGpsBuadRate = 9600;
     public static final float mGpsAccuracy = 2.5f;
@@ -347,8 +347,6 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     }
 
     public String getAnimalType(List<Classifier.Recognition> results) {
-        return "dummy info";
-        /*
         for( Classifier.Recognition tmp : results ) {
             if( tmp.getConfidence() >= acceptableRecognitionConfidence ) {
                 return tmp.getTitle();
@@ -356,6 +354,5 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         }
 
         return null;
-        */
     }
 }
