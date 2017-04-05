@@ -50,6 +50,8 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     public static final int mGpsBuadRate = 9600;
     public static final float mGpsAccuracy = 2.5f;
 
+    private final long DELAY_TIME_MILLIS = 5 * 1000 * 60; //5 minutes
+
     private HCSR501 mMotionDetector;
 
     private Bmx280 mTemperaturePressureSensor;
@@ -61,6 +63,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private LocationManager mLocationManager;
     private I2cDevice mHumidity;
 
+    private long lastDetectionTime = 0;
 
     private ImagePreprocessor mImagePreprocessor;
     private CameraHandler mCameraHandler;
@@ -262,8 +265,9 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
     @Override
     public void onMotionDetectedEvent(HCSR501.State state) {
-        Log.e("Test", "onmotiondetected");
-        takePicture();
+        if( shouldTakeImage() ) {
+            takePicture();
+        }
     }
 
     @Override
@@ -287,10 +291,8 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
     @Override
     public void onImageAvailable(ImageReader reader) {
-        Log.e("Test", "onimageavailable");
         final Bitmap bitmap;
         try (Image image = reader.acquireNextImage()) {
-            Log.e("Test", "acquire");
             bitmap = mImagePreprocessor.preprocessImage(image);
         }
 
@@ -304,11 +306,12 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
             return;
         }
 
+        lastDetectionTime = System.currentTimeMillis();
+
         uploadAnimal( bitmap, detectedAnimal );
     }
 
     private void uploadAnimal(Bitmap bitmap, final String detectedAnimal) {
-        Log.e("Test", "uploadanimal");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         byte[] data = outputStream.toByteArray();
@@ -344,6 +347,10 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(FIREBASE_DATABASE_URL);
 
         databaseRef.child("detection").setValue(detection);
+    }
+
+    private boolean shouldTakeImage() {
+        return System.currentTimeMillis() - lastDetectionTime > DELAY_TIME_MILLIS;
     }
 
     public String getAnimalType(List<Classifier.Recognition> results) {
