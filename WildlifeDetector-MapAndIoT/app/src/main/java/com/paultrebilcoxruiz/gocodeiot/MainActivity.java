@@ -26,7 +26,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.paultrebilcoxruiz.gocodeiot.firebase.Detection;
+import com.paultrebilcoxruiz.gocodeiot.database.Weather;
+import com.paultrebilcoxruiz.gocodeiot.database.Detection;
 import com.paultrebilcoxruiz.gocodeiot.hardware.adc.MCP3008;
 import com.paultrebilcoxruiz.gocodeiot.hardware.camera.CameraHandler;
 import com.paultrebilcoxruiz.gocodeiot.hardware.camera.ImagePreprocessor;
@@ -46,7 +47,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private final String FIREBASE_DATABASE_URL = "https://go-code-co-wildl-1490055276288.firebaseio.com/";
     private final String FIREBASE_STORAGE_URL = "gs://go-code-co-wildl-1490055276288.appspot.com";
 
-    private final float acceptableRecognitionConfidence = 80.0f;
+    private final float acceptableRecognitionConfidence = 0.9f;
 
     public static final int mGpsBuadRate = 9600;
     public static final float mGpsAccuracy = 2.5f;
@@ -74,19 +75,28 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private HandlerThread mCameraBackgroundThread;
     private Handler mCameraBackgroundHandler;
 
+    private Weather mWeatherData;
+
     private Runnable mWeatherSensorRunnable = new Runnable() {
 
-        private static final long DELAY_MS = 3000L;//
+        private static final long DELAY_MS = 1000L * 60; //1 minute
 
         @Override
         public void run() {
             Log.e("Test", "check weather");
             try {
+                mWeatherData = new Weather();
+                mWeatherData.setTime(System.currentTimeMillis());
+
                 readHumidity();
                 readPressure();
                 readTemperature();
                 readAirQuality();
                 readUv();
+                populateDewPoint();
+
+                uploadWeatherData();
+
             } catch( IOException e ) {
                 Log.e("Test", "handler io exception: " + e.getMessage() );
             }
@@ -191,31 +201,48 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
     //int
     private void readHumidity() throws IOException {
-        Log.e("Test", "humidity: " + mHumidity.readRegByte(0));
+        mWeatherData.setRelhumidity(mHumidity.readRegByte(0));
+
     }
 
     //int
     private void readAirQuality() throws IOException {
-        Log.e("Test", "air quality: " + mMCP3008.readAdc( BoardDefaults.getAirQualityChannel() ) );
+        mWeatherData.setAirquality(mMCP3008.readAdc( BoardDefaults.getAirQualityChannel() ));
     }
 
     //int
     private void readUv() throws IOException {
-        Log.e("Test", "uv: " + mMCP3008.readAdc( BoardDefaults.getUvChannel() ) );
+        mWeatherData.setUv(mMCP3008.readAdc( BoardDefaults.getUvChannel() ));
     }
 
     //float
     private void readPressure() throws IOException {
-        Log.e("Test", "pressure: " + mTemperaturePressureSensor.readPressure() * 100 ); //Pa
+        mWeatherData.setPressure(mTemperaturePressureSensor.readPressure() * 100 ); //Pa
     }
 
     //float
     private void readTemperature() throws IOException {
-        Log.e("Test", "temperature: " + mTemperaturePressureSensor.readTemperature() ); //C
+        mWeatherData.setTemperature(mTemperaturePressureSensor.readTemperature()); //C
+    }
+
+    //http://en.wikipedia.org/wiki/Dew_point
+    private void populateDewPoint() {
+        double a = 17.271;
+        double b = 237.7;
+        double temp = (a * mWeatherData.getTemperature()) / (b + mWeatherData.getTemperature()) + Math.log(mWeatherData.getTemperature()*0.01);
+        double Td = (b * temp) / (a - temp);
+
+        mWeatherData.setDewpoint(Td);
     }
 
     private void takePicture() {
         mCameraBackgroundHandler.post(mTakePictureBackgroundRunnable);
+    }
+
+    private void uploadWeatherData() {
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(FIREBASE_DATABASE_URL);
+
+        databaseRef.child("weather").child(String.valueOf(System.currentTimeMillis())).setValue(mWeatherData);
     }
 
     @Override

@@ -21,8 +21,8 @@ import static android.content.Context.CAMERA_SERVICE;
 public class CameraHandler {
     private static final String TAG = CameraHandler.class.getSimpleName();
 
-    public static final int IMAGE_WIDTH = 3456;
-    public static final int IMAGE_HEIGHT = 2304;
+    public static final int IMAGE_WIDTH = 640;
+    public static final int IMAGE_HEIGHT = 480;
 
     private static final int MAX_IMAGES = 1;
     private CameraDevice mCameraDevice;
@@ -140,7 +140,9 @@ public class CameraHandler {
             captureBuilder.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO);
             mCaptureSession.capture(captureBuilder.build(), mCaptureCallback, null);
 
-        } catch (CameraAccessException cae) {}
+        } catch (CameraAccessException cae) {
+            Log.e("Test", "camera access exception!: " + cae.getMessage() );
+        }
 
     }
 
