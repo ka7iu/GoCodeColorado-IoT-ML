@@ -186,23 +186,27 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     }
 
 
-    //Change to 5v digital
+    //int
     private void readHumidity() throws IOException {
         Log.e("Test", "humidity: " + mHumidity.readRegByte(0));
     }
 
+    //int
     private void readAirQuality() throws IOException {
         Log.e("Test", "air quality: " + mMCP3008.readAdc( BoardDefaults.getAirQualityChannel() ) );
     }
 
+    //int
     private void readUv() throws IOException {
         Log.e("Test", "uv: " + mMCP3008.readAdc( BoardDefaults.getUvChannel() ) );
     }
 
+    //float
     private void readPressure() throws IOException {
         Log.e("Test", "pressure: " + mTemperaturePressureSensor.readPressure() * 100 ); //Pa
     }
 
+    //float
     private void readTemperature() throws IOException {
         Log.e("Test", "temperature: " + mTemperaturePressureSensor.readTemperature() ); //C
     }
