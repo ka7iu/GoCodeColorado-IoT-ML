@@ -1,4 +1,4 @@
-package com.paultrebilcoxruiz.gocodeiot.firebase;
+package com.paultrebilcoxruiz.gocodeiot.database;
 
 public class Detection {
 

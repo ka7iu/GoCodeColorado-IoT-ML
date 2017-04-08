@@ -140,7 +140,9 @@ public class CameraHandler {
             captureBuilder.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO);
             mCaptureSession.capture(captureBuilder.build(), mCaptureCallback, null);
 
-        } catch (CameraAccessException cae) {}
+        } catch (CameraAccessException cae) {
+            Log.e("Test", "camera access exception!: " + cae.getMessage() );
+        }
 
     }
 
