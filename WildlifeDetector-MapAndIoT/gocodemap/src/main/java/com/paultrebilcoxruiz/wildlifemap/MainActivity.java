@@ -92,7 +92,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void retrieveFileFromResource() {
         try {
-            mKmlLayer = new KmlLayer(mMap, R.raw.bearssummer, getApplicationContext());
+            mKmlLayer = new KmlLayer(mMap, R.raw.canadiangeesewinter, getApplicationContext());
 
             mKmlLayer.addLayerToMap();
             mKmlLayer.setOnFeatureClickListener(this);
