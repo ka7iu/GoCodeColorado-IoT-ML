@@ -51,7 +51,7 @@ public class FlameDetector implements AutoCloseable {
 
         try {
             connect(gpio);
-        } catch( IOException | RuntimeException e ) {
+        } catch( IOException e ) {
             close();
             throw e;
         }

@@ -3,6 +3,7 @@ package com.paultrebilcoxruiz.gocodeiot;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,7 +47,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private final String FIREBASE_DATABASE_URL = "https://go-code-co-wildl-1490055276288.firebaseio.com/";
     private final String FIREBASE_STORAGE_URL = "gs://go-code-co-wildl-1490055276288.appspot.com";
 
-    private final float acceptableRecognitionConfidence = 0.9f;
+    private final float acceptableRecognitionConfidence = 0.80f;
 
     public static final int mGpsBuadRate = 9600;
     public static final float mGpsAccuracy = 2.5f;
@@ -121,8 +121,6 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private Runnable mInitializeOnBackground = new Runnable() {
         @Override
         public void run() {
-            Log.e("Test", "initialize camera on background");
-
             mImagePreprocessor = new ImagePreprocessor(CameraHandler.IMAGE_WIDTH,
                     CameraHandler.IMAGE_HEIGHT, TensorFlowImageClassifier.INPUT_SIZE);
 
@@ -184,13 +182,11 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     }
 
     private void initMCP3008() throws IOException {
-        Log.e("Test", "initmcp3008");
         mMCP3008 = new MCP3008(BoardDefaults.getAdcCsPin(), BoardDefaults.getAdcClockPin(), BoardDefaults.getAdcMosiPin(), BoardDefaults.getAdcMisoPin());
         mMCP3008.register();
     }
 
     private void initGps() throws IOException {
-        Log.e("Test", "initgps");
         mGpsDriver = new NmeaGpsDriver(this, BoardDefaults.getGpsUartBus(),
                 mGpsBuadRate, mGpsAccuracy);
         mGpsDriver.register();
@@ -339,8 +335,8 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
         Log.e("Test", "Got the following results from Tensorflow: " + results);
 
-        String detectedAnimal = getAnimalType(results);
-        if( TextUtils.isEmpty(detectedAnimal) ) {
+        Detection detectedAnimal = getDetectedAnimal(results);
+        if( detectedAnimal == null ) {
             Log.e("Test", "no detected animal");
             return;
         }
@@ -350,7 +346,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         uploadAnimal( bitmap, detectedAnimal );
     }
 
-    private void uploadAnimal(Bitmap bitmap, final String detectedAnimal) {
+    private void uploadAnimal(Bitmap bitmap, final Detection detectedAnimal) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         byte[] data = outputStream.toByteArray();
@@ -372,14 +368,20 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         });
     }
 
-    private void handleNotificationForImage(Uri downloadUri, String detectedAnimal) {
-        Detection detection = new Detection();
-        detection.setAnimalType(detectedAnimal);
+    private void handleNotificationForImage(Uri downloadUri, Detection detection) {
+
         detection.setImageUrl(downloadUri.toString());
         if( mLocationManager != null && mLocationManager.getAllProviders() != null && !mLocationManager.getAllProviders().isEmpty() ) {
-            Location location = mLocationManager.getLastKnownLocation(mLocationManager.getAllProviders().get(0));
-            detection.setLatitude(location.getLatitude());
-            detection.setLongitude(location.getLongitude());
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.NO_REQUIREMENT);
+            Location location = mLocationManager.getLastKnownLocation(mLocationManager.getBestProvider(criteria, true));
+            if( location != null ) {
+                detection.setLatitude(location.getLatitude());
+                detection.setLongitude(location.getLongitude());
+            } else {
+                detection.setLatitude(0);
+                detection.setLongitude(0);
+            }
         }
         detection.setTimeMillis(System.currentTimeMillis());
 
@@ -389,13 +391,16 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     }
 
     private boolean shouldTakeImage() {
-        return System.currentTimeMillis() - lastDetectionTime > DELAY_TIME_MILLIS;
+        return (System.currentTimeMillis() - lastDetectionTime) > DELAY_TIME_MILLIS;
     }
 
-    public String getAnimalType(List<Classifier.Recognition> results) {
+    public Detection getDetectedAnimal(List<Classifier.Recognition> results) {
         for( Classifier.Recognition tmp : results ) {
             if( tmp.getConfidence() >= acceptableRecognitionConfidence ) {
-                return tmp.getTitle();
+                Detection detection = new Detection();
+                detection.setAnimalType(tmp.getTitle());
+                detection.setConfidence(tmp.getConfidence());
+                return detection;
             }
         }
 

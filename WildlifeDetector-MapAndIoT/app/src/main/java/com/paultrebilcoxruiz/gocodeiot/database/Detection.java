@@ -7,6 +7,15 @@ public class Detection {
     private double longitude;
     private double latitude;
     private long timeMillis;
+    private float confidence;
+
+    public float getConfidence() {
+        return confidence;
+    }
+
+    public void setConfidence(float confidence) {
+        this.confidence = confidence;
+    }
 
     public String getAnimalType() {
         return animalType;
