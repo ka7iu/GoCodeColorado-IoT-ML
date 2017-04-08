@@ -1,36 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_below="@+id/map"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <fragment
-        android:id="@+id/map"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.google.android.gms.maps.SupportMapFragment" />
+        android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:textSize="32sp"
-        android:layout_alignParentTop="true"
-        android:background="@android:color/white"
-        android:layout_margin="16dp"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:paddingRight="80dp"/>
+        <fragment
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="com.google.android.gms.maps.SupportMapFragment" />
 
-    <ImageButton
-        android:id="@+id/btn_confirm"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignTop="@id/edit_text"
-        android:layout_alignRight="@+id/edit_text"
-        android:src="@android:drawable/btn_star"
-        />
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:textSize="32sp"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/white"
+            android:layout_margin="16dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:paddingRight="80dp"/>
 
-</RelativeLayout>
+        <ImageButton
+            android:id="@+id/btn_confirm"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_alignTop="@id/edit_text"
+            android:layout_alignRight="@+id/edit_text"
+            android:src="@android:drawable/btn_star"
+            />
+
+    </RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>

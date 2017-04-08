@@ -5,7 +5,13 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,10 +32,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.List;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleMap.OnMapClickListener,
         GoogleMap.OnMapLongClickListener,
         KmlLayer.OnFeatureClickListener {
+
+    private BottomSheetBehavior mBottomSheetBehavior;
+
     private GoogleMap mMap;
     private KmlLayer mKmlLayer;
     private ImageButton mConfirmButton;
@@ -59,6 +68,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 placePin(latlng);
             }
         });
+
     }
 
     private void placePin(@NonNull LatLng latlng) {
@@ -123,9 +133,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         try {
             address = coder.getFromLocationName(strAddress,5);
-            if (address == null) {
+            if (address == null || address.isEmpty() ) {
                 return null;
             }
+
             Address location=address.get(0);
 
             p1 = new LatLng(location.getLatitude(), location.getLongitude());
@@ -135,6 +146,27 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         return p1;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_selection:
+                BottomSheetDialogFragment bottomSheetDialogFragment = new MapBottomSheetDialogFragment();
+                bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.map_menu, menu);
+        return true;
     }
 
     @Override
