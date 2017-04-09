@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Wildlife Map</string>
+    <string name="wildlife_bear_human_conflict">Bear-Human Conflict Area</string>
+    <string name="wildlife_mountain_lion_human_conflict">Mountain Lion-Human Conflict Area</string>
+    <string name="wildlife_black_bear_summer">Black Bear, Summer</string>
+    <string name="wildlife_black_bear_fall">Black Bear, Fall</string>
+    <string name="wildlife_black_bear_all">Black Bear, Overall Range</string>
+    <string name="wildlife_canadian_goose_winter">Canadian Goose, Winter</string>
+    <string name="wilfelife_elk_summer">Elk, Summer</string>
+    <string name="wilfelife_elk_winter">Elk, Winter</string>
+    <string name="wilfelife_elk_severe_winter">Elk, Severe Winter</string>
+    <string name="wildlife_mountain_goat_summer">Mountain Goat, Summer</string>
+    <string name="wildlife_mountain_goat_winter">Mountain Goat, Winter</string>
+    <string name="wildlife_mountain_lion_all">Mountain Lion, Overall Range</string>
+    <string name="wildlife_moose_all">Moose</string>
 </resources>
