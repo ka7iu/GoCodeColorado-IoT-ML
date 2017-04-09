@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/wildlife_bear_human_conflict"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_bear_human_conflict"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_mountain_lion_human_conflict"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_mountain_lion_human_conflict"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_black_bear_summer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_black_bear_summer"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_black_bear_fall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_black_bear_fall"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_black_bear_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_black_bear_all"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_canadian_goose_winter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_canadian_goose_winter"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wilfelife_elk_summer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wilfelife_elk_summer"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wilfelife_elk_winter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wilfelife_elk_winter"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wilfelife_elk_severe_winter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wilfelife_elk_severe_winter"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_mountain_goat_summer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_mountain_goat_summer"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_mountain_goat_winter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_mountain_goat_winter"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_mountain_lion_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_mountain_lion_all"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/wildlife_moose_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wildlife_moose_all"
+            android:textSize="16sp"
+            android:padding="16dp" />
+
+    </LinearLayout>
+</ScrollView>

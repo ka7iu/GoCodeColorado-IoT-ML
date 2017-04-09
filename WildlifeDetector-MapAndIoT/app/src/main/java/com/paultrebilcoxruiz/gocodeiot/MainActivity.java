@@ -47,12 +47,14 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private final String FIREBASE_DATABASE_URL = "https://go-code-co-wildl-1490055276288.firebaseio.com/";
     private final String FIREBASE_STORAGE_URL = "gs://go-code-co-wildl-1490055276288.appspot.com";
 
-    private final float acceptableRecognitionConfidence = 0.80f;
+    private final float acceptableRecognitionConfidence = 0.90f;
 
     public static final int mGpsBuadRate = 9600;
     public static final float mGpsAccuracy = 2.5f;
 
-    private final long DELAY_TIME_MILLIS = 5 * 1000 * 60; //5 minutes
+    private final long ANALYZE_DELAY_TIME_MILLIS = 5 * 1000 * 60; // 5 minutes
+    private final long MOTION_DELAY_TIME_MILLIS = 60 * 1000; // 1 minute
+
 
     private HCSR501 mMotionDetector;
     private FlameDetector mFlameDetector;
@@ -66,7 +68,8 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private LocationManager mLocationManager;
     private I2cDevice mHumidity;
 
-    private long lastDetectionTime = 0;
+    private long lastAnimalDetectedTime = 0;
+    private long lastMotionDetectedTime = 0;
 
     private ImagePreprocessor mImagePreprocessor;
     private CameraHandler mCameraHandler;
@@ -341,7 +344,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
             return;
         }
 
-        lastDetectionTime = System.currentTimeMillis();
+        lastAnimalDetectedTime = System.currentTimeMillis();
 
         uploadAnimal( bitmap, detectedAnimal );
     }
@@ -391,7 +394,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     }
 
     private boolean shouldTakeImage() {
-        return (System.currentTimeMillis() - lastDetectionTime) > DELAY_TIME_MILLIS;
+        return (((System.currentTimeMillis() - lastAnimalDetectedTime) > ANALYZE_DELAY_TIME_MILLIS) && ((System.currentTimeMillis() - lastMotionDetectedTime) > MOTION_DELAY_TIME_MILLIS));
     }
 
     public Detection getDetectedAnimal(List<Classifier.Recognition> results) {
