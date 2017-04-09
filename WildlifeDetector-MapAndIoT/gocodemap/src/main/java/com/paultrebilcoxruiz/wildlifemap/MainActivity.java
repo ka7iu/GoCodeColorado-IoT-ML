@@ -22,10 +22,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.data.Feature;
+import com.google.maps.android.data.kml.KmlContainer;
+import com.google.maps.android.data.kml.KmlGroundOverlay;
 import com.google.maps.android.data.kml.KmlLayer;
+import com.google.maps.android.data.kml.KmlPlacemark;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -100,10 +104,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
 
-        retrieveFileFromResource(R.raw.canadiangeesewinter);
+        retrieveFileFromResource(R.raw.elk_summer);
+        getSupportActionBar().setTitle(R.string.wilfelife_elk_summer);
     }
 
     private void retrieveFileFromResource(int raw) {
+        if( mKmlLayer != null ) {
+            mKmlLayer.removeLayerFromMap();
+        }
         try {
             mKmlLayer = new KmlLayer(mMap, raw, getApplicationContext());
             mKmlLayer.addLayerToMap();
@@ -172,12 +180,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapClick(LatLng latLng) {
-        Toast.makeText(this, "No bears around there", Toast.LENGTH_SHORT ).show();
+        Toast.makeText(this, "No wildlife around there", Toast.LENGTH_SHORT ).show();
     }
 
     @Override
     public void onFeatureClick(Feature feature) {
-        Toast.makeText(this, "You're in bear territory!", Toast.LENGTH_SHORT ).show();
+        Toast.makeText(this, "You're in the wildlife range", Toast.LENGTH_SHORT ).show();
     }
 
     @Override
@@ -188,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapLayerSelected(String layer) {
         mKmlLayer.removeLayerFromMap();
+        getSupportActionBar().setTitle(layer);
         if( stringMatches(layer, R.string.wildlife_bear_human_conflict ) ) {
             retrieveFileFromResource(R.raw.bear_human_conflict);
         } else if( stringMatches(layer, R.string.wildlife_mountain_lion_human_conflict ) ) {
