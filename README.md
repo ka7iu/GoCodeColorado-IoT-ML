@@ -1,14 +1,14 @@
 ## 
 Board schematic:
-![schematics](https://github.com/GoCodeColorado/AwkwardElk/blob/master/schematic.png)
+![schematics](https://github.com/PaulTR/GoCodeColorado-IoT-ML/blob/master/schematic.png?raw=true)
 
 
 Example image taken from camera:
-![camera sample](https://github.com/GoCodeColorado/AwkwardElk/blob/master/bear.jpg)
+![camera sample](https://github.com/PaulTR/GoCodeColorado-IoT-ML/blob/master/bear.jpg)
 
 
 Results from analysis
-![results](https://github.com/GoCodeColorado/AwkwardElk/blob/master/results.png)
+![results](https://github.com/PaulTR/GoCodeColorado-IoT-ML/blob/master/results.png)
 
 
 --
