@@ -1,5 +1,7 @@
 package com.paultrebilcoxruiz.gocodeiot.hardware.sensors.motiondetector;
 
+import android.util.Log;
+
 import com.google.android.things.pio.Gpio;
 import com.google.android.things.pio.GpioCallback;
 import com.google.android.things.pio.PeripheralManagerService;
@@ -31,6 +33,7 @@ public class HCSR501 implements AutoCloseable {
         try {
             connect(HCSR501Gpio);
         } catch( IOException | RuntimeException e ) {
+            Log.e("Test", "some kind of exception: " + e.getMessage());
             close();
             throw e;
         }
@@ -49,7 +52,9 @@ public class HCSR501 implements AutoCloseable {
     }
 
     private void performMotionEvent(State state) {
+        Log.e("Test", "performmotionevent: " + state.name());
         if( mOnMotionDetectedEventListener != null ) {
+            Log.e("Test", "send to listener");
             mOnMotionDetectedEventListener.onMotionDetectedEvent(state);
         }
     }
@@ -59,15 +64,16 @@ public class HCSR501 implements AutoCloseable {
         @Override
         public boolean onGpioEdge(Gpio gpio) {
             try {
-
+                Log.e("Test", "interrupt callback");
                 if( gpio.getValue() != mLastState ) {
+                    Log.e("Test", "not like last state");
                     mLastState = gpio.getValue();
                     performMotionEvent(mLastState ? State.STATE_HIGH : State.STATE_LOW);
                 }
 
 
             } catch( IOException e ) {
-
+                Log.e("Test", "interrupt callback exception: " + e.getMessage());
             }
 
             return true;

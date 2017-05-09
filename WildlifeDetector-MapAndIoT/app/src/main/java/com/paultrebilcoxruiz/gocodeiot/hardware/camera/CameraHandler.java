@@ -111,14 +111,18 @@ public class CameraHandler {
                     Collections.singletonList(mImageReader.getSurface()),
                     mSessionCallback,
                     null);
-        } catch( CameraAccessException e ) {}
+        } catch( CameraAccessException e ) {
+            Log.e("Test", "camera access exception: " + e.getMessage() );
+        }
     }
 
     private CameraCaptureSession.StateCallback mSessionCallback =
             new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    Log.e("Test", "onConfigured");
                     if (mCameraDevice == null) {
+                        Log.e("Test", "onConfigured camera null");
                         return;
                     }
 
@@ -127,7 +131,7 @@ public class CameraHandler {
                 }
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-                    //no-op
+                    Log.e("Test", "onconfiguredfailed");
                 }
             };
 
