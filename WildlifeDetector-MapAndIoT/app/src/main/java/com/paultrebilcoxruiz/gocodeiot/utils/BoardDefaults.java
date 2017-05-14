@@ -7,27 +7,23 @@ public class BoardDefaults {
     }
 
     public static String getMotionDetectorPin() {
-        return "BCM26";
-    }
-
-    public static String getGpsUartBus() {
-        return "UART0";
+        return "BCM4";
     }
 
     public static String getAdcCsPin() {
-        return "BCM12";
+        return "BCM17";
     }
 
     public static String getAdcClockPin() {
-        return "BCM21";
+        return "BCM18";
     }
 
     public static String getAdcMosiPin() {
-        return "BCM16";
+        return "BCM27";
     }
 
     public static String getAdcMisoPin() {
-        return "BCM20";
+        return "BCM22";
     }
 
     public static String getBmx280I2cBus() {

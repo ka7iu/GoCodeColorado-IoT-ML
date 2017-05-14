@@ -1,12 +1,7 @@
 package com.paultrebilcoxruiz.gocodeiot;
 
 import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
@@ -18,7 +13,6 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.things.contrib.driver.gps.NmeaGpsDriver;
 import com.google.android.things.pio.I2cDevice;
 import com.google.android.things.pio.PeripheralManagerService;
 import com.google.firebase.database.DatabaseReference;
@@ -26,8 +20,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.paultrebilcoxruiz.gocodeiot.database.Weather;
 import com.paultrebilcoxruiz.gocodeiot.database.Detection;
+import com.paultrebilcoxruiz.gocodeiot.database.Weather;
 import com.paultrebilcoxruiz.gocodeiot.hardware.adc.MCP3008;
 import com.paultrebilcoxruiz.gocodeiot.hardware.camera.CameraHandler;
 import com.paultrebilcoxruiz.gocodeiot.hardware.camera.ImagePreprocessor;
@@ -42,26 +36,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEventListener, LocationListener, ImageReader.OnImageAvailableListener, FlameDetector.OnFlameDetectedListener {
+public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEventListener, ImageReader.OnImageAvailableListener, FlameDetector.OnFlameDetectedListener {
 
     private final String FIREBASE_DATABASE_URL = "https://go-code-co-wildl-1490055276288.firebaseio.com/";
     private final String FIREBASE_STORAGE_URL = "gs://go-code-co-wildl-1490055276288.appspot.com";
 
     private final float acceptableRecognitionConfidence = 0.85f;
 
-    public static final int mGpsBuadRate = 9600;
-    public static final float mGpsAccuracy = 2.5f;
-
     private HCSR501 mMotionDetector;
-    private FlameDetector mFlameDetector;
+
+    //private FlameDetector mFlameDetector;
 
     private Bmx280 mTemperaturePressureSensor;
     private MCP3008 mMCP3008;
-    private NmeaGpsDriver mGpsDriver;
 
-    private Handler mAnalogInputHandler;
+    private Handler mWeatherInputHandler;
 
-    private LocationManager mLocationManager;
     private I2cDevice mHumidity;
 
     private ImagePreprocessor mImagePreprocessor;
@@ -75,21 +65,23 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
     private Runnable mWeatherSensorRunnable = new Runnable() {
 
-        private static final long DELAY_MS = 1000L * 60; //1 minute
+        private static final long DELAY_MS = 30000L; //1 minute
 
         @Override
         public void run() {
-            Log.e("Test", "check weather");
+
+
             try {
                 mWeatherData = new Weather();
                 mWeatherData.setTime(System.currentTimeMillis());
 
-                readHumidity();
                 readPressure();
                 readTemperature();
                 readAirQuality();
                 readUv();
+
                 populateDewPoint();
+                readHumidity();
 
                 uploadWeatherData();
 
@@ -97,7 +89,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
                 Log.e("Test", "handler io exception: " + e.getMessage());
             }
 
-            mAnalogInputHandler.postDelayed(this, DELAY_MS);
+            mWeatherInputHandler.postDelayed(this, DELAY_MS);
         }
     };
 
@@ -133,32 +125,25 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        PeripheralManagerService service = new PeripheralManagerService();
-
         try {
-            mHumidity = service.openI2cDevice(BoardDefaults.getHumidityI2cBus(), 0x08);
+            initEnvironmentalSensors();
             initMCP3008();
-            mTemperaturePressureSensor = new Bmx280( BoardDefaults.getBmx280I2cBus() );
-            if( hasLocationPermission() ) {
-                initGps();
-            }
         } catch( IOException e ) {
             Log.e("Test", "Initialization exception occurred: " + e.getMessage());
         }
 
+        /*
         try {
             mFlameDetector = new FlameDetector(BoardDefaults.getFlameDetectorPin());
             mFlameDetector.setOnFlameDetectedListener(this);
         } catch( IOException e ) {
             Log.e("Test", "flame detector exception: " + e.getMessage() );
         }
-
-
+        */
 
         initCamera();
-        mAnalogInputHandler = new Handler();
-        mAnalogInputHandler.post(mWeatherSensorRunnable);
+        mWeatherInputHandler = new Handler();
+        mWeatherInputHandler.post(mWeatherSensorRunnable);
 
         try {
             mMotionDetector = new HCSR501(BoardDefaults.getMotionDetectorPin());
@@ -169,6 +154,13 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         }
     }
 
+    private void initEnvironmentalSensors() throws IOException {
+        PeripheralManagerService service = new PeripheralManagerService();
+
+        mHumidity = service.openI2cDevice(BoardDefaults.getHumidityI2cBus(), 0x08);
+        mTemperaturePressureSensor = new Bmx280( BoardDefaults.getBmx280I2cBus() );
+    }
+
     private void initCamera() {
         mCameraBackgroundThread = new HandlerThread("BackgroundThread");
         mCameraBackgroundThread.start();
@@ -176,59 +168,54 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         mCameraBackgroundHandler.post(mInitializeOnBackground);
     }
 
-    private boolean hasLocationPermission() {
-        return checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
     private void initMCP3008() throws IOException {
         mMCP3008 = new MCP3008(BoardDefaults.getAdcCsPin(), BoardDefaults.getAdcClockPin(), BoardDefaults.getAdcMosiPin(), BoardDefaults.getAdcMisoPin());
         mMCP3008.register();
     }
 
-    private void initGps() throws IOException {
-        mGpsDriver = new NmeaGpsDriver(this, BoardDefaults.getGpsUartBus(),
-                mGpsBuadRate, mGpsAccuracy);
-        mGpsDriver.register();
-        // Register for location updates
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-    }
-
 
     //int
     private void readHumidity() throws IOException {
-        mWeatherData.setRelhumidity(mHumidity.readRegByte(0));
+        int tmp = mHumidity.readRegByte(0);
+        Log.e("Test", "read humidity: " + tmp);
+        mWeatherData.setRelhumidity(tmp);
 
     }
 
     //int
     private void readAirQuality() throws IOException {
         mWeatherData.setAirquality(mMCP3008.readAdc( BoardDefaults.getAirQualityChannel() ));
+        Log.e("Test", "air quality: " + mWeatherData.getAirquality());
     }
 
     //int
     private void readUv() throws IOException {
         mWeatherData.setUv(mMCP3008.readAdc( BoardDefaults.getUvChannel() ));
+        Log.e("Test", "uv: " + mWeatherData.getUv());
     }
 
     //float
     private void readPressure() throws IOException {
         mWeatherData.setPressure(mTemperaturePressureSensor.readPressure() * 100 ); //Pa
+        Log.e("Test", "pressure: " + mWeatherData.getPressure());
     }
 
     //float
     private void readTemperature() throws IOException {
         mWeatherData.setTemperature(mTemperaturePressureSensor.readTemperature()); //C
+        Log.e("Test", "temp: " + mWeatherData.getTemperature());
     }
 
     //http://en.wikipedia.org/wiki/Dew_point
     private void populateDewPoint() {
+        Log.e("Test", "populate dew point");
         double a = 17.271;
         double b = 237.7;
         double temp = (a * mWeatherData.getTemperature()) / (b + mWeatherData.getTemperature()) + Math.log(mWeatherData.getTemperature()*0.01);
         double Td = (b * temp) / (a - temp);
 
         mWeatherData.setDewpoint(Td);
+        Log.e("Test", "dewpoint: " + Td);
     }
 
     private void takePicture() {
@@ -250,24 +237,12 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
             mMCP3008.unregister();
         }
 
-        if( mAnalogInputHandler != null ) {
-            mAnalogInputHandler.removeCallbacks(mWeatherSensorRunnable);
+        if( mWeatherInputHandler != null ) {
+            mWeatherInputHandler.removeCallbacks(mWeatherSensorRunnable);
         }
 
         if( mTemperaturePressureSensor != null ) {
             mTemperaturePressureSensor.close();
-        }
-
-        if (mGpsDriver != null) {
-            // Unregister components
-            mGpsDriver.unregister();
-            mLocationManager.removeUpdates(this);
-
-            try {
-                mGpsDriver.close();
-            } catch (IOException e) {
-                //no op
-            }
         }
 
         if( mHumidity != null ) {
@@ -305,25 +280,6 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
             Log.e("Test", "onmotiondetected");
             takePicture();
         }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
     }
 
     @Override
@@ -371,18 +327,10 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private void handleNotificationForImage(Uri downloadUri, Detection detection) {
 
         detection.setImageUrl(downloadUri.toString());
-        if( mLocationManager != null && mLocationManager.getAllProviders() != null && !mLocationManager.getAllProviders().isEmpty() ) {
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.NO_REQUIREMENT);
-            Location location = mLocationManager.getLastKnownLocation(mLocationManager.getBestProvider(criteria, true));
-            if( location != null ) {
-                detection.setLatitude(location.getLatitude());
-                detection.setLongitude(location.getLongitude());
-            } else {
-                detection.setLatitude(0);
-                detection.setLongitude(0);
-            }
-        }
+
+        //TODO: Fix GPS once that's working again
+        detection.setLatitude(0);
+        detection.setLongitude(0);
         detection.setTimeMillis(System.currentTimeMillis());
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(FIREBASE_DATABASE_URL);
