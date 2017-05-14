@@ -124,6 +124,8 @@ public class CameraHandler {
                     if (mCameraDevice == null) {
                         Log.e("Test", "onConfigured camera null");
                         return;
+                    } else {
+                        Log.e("Test", "camera not null");
                     }
 
                     mCaptureSession = cameraCaptureSession;

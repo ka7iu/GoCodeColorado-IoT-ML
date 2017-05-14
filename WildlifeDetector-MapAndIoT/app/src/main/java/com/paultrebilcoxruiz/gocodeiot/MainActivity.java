@@ -22,6 +22,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.paultrebilcoxruiz.gocodeiot.database.Detection;
 import com.paultrebilcoxruiz.gocodeiot.database.Weather;
+import com.paultrebilcoxruiz.gocodeiot.hardware.Lcd1602;
 import com.paultrebilcoxruiz.gocodeiot.hardware.adc.MCP3008;
 import com.paultrebilcoxruiz.gocodeiot.hardware.camera.CameraHandler;
 import com.paultrebilcoxruiz.gocodeiot.hardware.camera.ImagePreprocessor;
@@ -44,6 +45,16 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     private final float acceptableRecognitionConfidence = 0.85f;
 
     private HCSR501 mMotionDetector;
+
+    private Lcd1602 lcd;
+
+    private static final String GPIO_LCD_RS = "BCM26";
+    private static final String GPIO_LCD_EN = "BCM19";
+
+    private static final String GPIO_LCD_D4 = "BCM21";
+    private static final String GPIO_LCD_D5 = "BCM20";
+    private static final String GPIO_LCD_D6 = "BCM16";
+    private static final String GPIO_LCD_D7 = "BCM12";
 
     //private FlameDetector mFlameDetector;
 
@@ -128,6 +139,10 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         try {
             initEnvironmentalSensors();
             initMCP3008();
+
+            lcd = new Lcd1602(GPIO_LCD_RS, GPIO_LCD_EN, GPIO_LCD_D4, GPIO_LCD_D5, GPIO_LCD_D6, GPIO_LCD_D7);
+            displayText("Initializing...");
+
         } catch( IOException e ) {
             Log.e("Test", "Initialization exception occurred: " + e.getMessage());
         }
@@ -223,6 +238,16 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         mCameraBackgroundHandler.post(mTakePictureBackgroundRunnable);
     }
 
+    private void displayText(String text) {
+        try {
+            lcd.clear();
+            lcd.begin(16, 2);
+            lcd.print(text);
+        } catch( IOException e ) {
+
+        }
+    }
+
     private void uploadWeatherData() {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(FIREBASE_DATABASE_URL);
 
@@ -233,6 +258,15 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
     protected void onDestroy() {
         super.onDestroy();
 
+        if( lcd != null ) {
+            try {
+                lcd.close();
+            } catch( Exception e ) {
+
+            } finally {
+                lcd = null;
+            }
+        }
         if( mMCP3008 != null ) {
             mMCP3008.unregister();
         }
@@ -284,6 +318,7 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
 
     @Override
     public void onImageAvailable(ImageReader reader) {
+        Log.e("Test", "onImageAvailable");
         final Bitmap bitmap;
         try (Image image = reader.acquireNextImage()) {
             bitmap = mImagePreprocessor.preprocessImage(image);
@@ -300,6 +335,23 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         }
 
         uploadAnimal( bitmap, detectedAnimal );
+
+        displayAnimalOnLcd(detectedAnimal);
+    }
+
+    private void displayAnimalOnLcd(Detection detectedAnimal) {
+        try {
+            lcd.clear();
+            lcd.begin(16, 2);
+            lcd.print(detectedAnimal.getAnimalType());
+            lcd.setCursor(0, 1);
+            lcd.print("conf: " + detectedAnimal.getConfidence());
+        } catch( IOException e ) {
+
+        } finally {
+            //clear lcd after 10 seconds
+        }
+
     }
 
     private void uploadAnimal(Bitmap bitmap, final Detection detectedAnimal) {
