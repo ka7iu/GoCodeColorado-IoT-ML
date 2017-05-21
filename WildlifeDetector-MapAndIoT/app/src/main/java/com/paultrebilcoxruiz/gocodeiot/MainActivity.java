@@ -243,8 +243,9 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
             lcd.clear();
             lcd.begin(16, 2);
             lcd.print(text);
+            Log.e("Test", "displaying text: " + text);
         } catch( IOException e ) {
-
+            Log.e("Test", "LCD IOException: " + e.getMessage() );
         }
     }
 
@@ -331,6 +332,13 @@ public class MainActivity extends Activity implements HCSR501.OnMotionDetectedEv
         Detection detectedAnimal = getDetectedAnimal(results);
         if( detectedAnimal == null ) {
             Log.e("Test", "no detected animal");
+            try {
+                lcd.clear();
+                lcd.begin(16, 2);
+                lcd.print("No animal");
+            } catch( IOException e ) {
+                Log.e("Test", "lcd exception: " + e.getMessage() );
+            }
             return;
         }
 
